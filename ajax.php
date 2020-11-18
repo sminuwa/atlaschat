@@ -15,7 +15,7 @@ if($_REQUEST['type'] == "messages") {
     $messages = DataManager::query('messages','*',"(sender=$sender AND receiver=$receiver) or (receiver=$sender AND sender=$receiver)");
     DataManager::update('messages',["seen"=>"yes"],"(receiver=$sender AND sender=$receiver)");
     foreach ($messages as $message) {
-        $senderName = DataManager::query("users", "*", "id={$message->sender}")[0]->name;
+        $senderName = DataManager::query("prelude_userprofiles", "*", "id={$message->sender}")[0]->name;
         $class = "";
         if ($message->sender == $sender) {
             $class = "right";
@@ -51,7 +51,7 @@ if($_REQUEST['type'] == "messages") {
 
 <?
 if($_REQUEST['type'] == "chatlist") {
-  $sql = "SELECT users.*, messages.message, messages.sender as sender, messages.created_at as message_time FROM messages JOIN users ON (users.id=messages.sender OR receiver=users.id) WHERE (sender=$sender OR receiver=$sender) AND users.id <> $sender ORDER BY messages.created_at DESC";
+  $sql = "SELECT prelude_userprofiles.*, messages.message, messages.sender as sender, messages.created_at as message_time FROM messages JOIN prelude_userprofiles ON (prelude_userprofiles.id=messages.sender OR receiver=prelude_userprofiles.id) WHERE (sender=$sender OR receiver=$sender) AND prelude_userprofiles.id <> $sender ORDER BY messages.created_at DESC";
      $chatlists = DataManager::rawQuery($sql);
 
     $mainlist = [];
@@ -116,14 +116,14 @@ if($_REQUEST['type'] == "chatlist") {
 <?php
 
 if($_REQUEST['type'] == "search"){
-    $user = DataManager::query('users','*',"id=$sender")[0];
+    $user = DataManager::query('prelude_userprofiles','*',"id=$sender")[0];
     $userId = $user->id;
     $userRole = $user->Role;
     $userCompany = $user->CompanyName;
     $search = $_REQUEST['search'];
 //        $search = $request->search;
-    $users = DataManager::query("users",'*',"((Role = '$userRole' AND CompanyName = '$userCompany') OR (Role != '$userRole')) AND (CompanyName like '%$search%' OR FirstName like '%$search%') AND id != $userId");
-foreach($users as $user){
+    $prelude_userprofiles = DataManager::query("prelude_userprofiles",'*',"((Role = '$userRole' AND CompanyName = '$userCompany') OR (Role != '$userRole')) AND (CompanyName like '%$search%' OR FirstName like '%$search%') AND id != $userId");
+foreach($prelude_userprofiles as $user){
 
 ?>
 <li class="unread">
@@ -154,7 +154,7 @@ foreach($users as $user){
 }
 
 if($_REQUEST['type'] == "send") {
-    $user = DataManager::query('users','*',"id=$sender")[0];
+    $user = DataManager::query('prelude_userprofiles','*',"id=$sender")[0];
 //    $sender = $user->id;
     $receiver = $_REQUEST['receiver'];
     $message = $_REQUEST['message'];
